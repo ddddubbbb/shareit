@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.AlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
 
@@ -29,7 +31,7 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    private static class ErrorResponse {
+    public static class ErrorResponse {
         private final String error;
 
         public ErrorResponse(String error) {
@@ -39,5 +41,12 @@ public class ErrorHandler {
         public String getError() {
             return error;
         }
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleThrowable(final Throwable e) {
+        log.info("500 {}", e.getMessage(), e);
+        return new ErrorResponse(e.getMessage());
     }
 }

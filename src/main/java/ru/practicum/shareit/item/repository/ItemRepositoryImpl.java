@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.toList;
 @Qualifier("ItemRepositoryImpl")
 public class ItemRepositoryImpl implements ItemRepository {
 
-    public Map<Long, Item> items;
+    private Map<Long, Item> items;
     private Long currentId;
 
     public ItemRepositoryImpl() {
@@ -43,11 +43,10 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<Item> getItemsByOwner(Long ownerId) {
-        return new ArrayList<>(items
+        return items
                 .values()
                 .stream()
-                .filter(item -> item.getOwnerId().equals(ownerId))
-                .collect(toList()));
+                .filter(item -> item.getOwnerId().equals(ownerId)).collect(java.util.stream.Collectors.toList());
     }
 
     @Override
