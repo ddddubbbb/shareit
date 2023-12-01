@@ -6,13 +6,12 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Builder(toBuilder = true)
 @Data
+@Builder
 @AllArgsConstructor
-public class BookingDto {
+public class ShortItemBookingDto {
+    private Long id;
+    private Long bookerId;
     private LocalDateTime start;
     private LocalDateTime end;
-    private Long itemId;
-    private Long bookerId;
-    private String status;
 }
