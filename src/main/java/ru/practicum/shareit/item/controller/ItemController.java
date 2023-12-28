@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.Marker;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
@@ -31,7 +33,8 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto create(@RequestHeader(OWNER_ID_HEADER) Long userId, @Valid @RequestBody ItemDto itemDto) {
+    public ItemDto create(@RequestHeader(OWNER_ID_HEADER) Long userId,
+                          @Validated({Marker.OnCreate.class}) @RequestBody ItemDto itemDto) {
         log.info("Received a POST-request to the endpoint: '/items' to add an item by the owner with ID = {}", userId);
         return itemService.create(userId, itemDto);
     }
@@ -52,7 +55,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto save(@RequestHeader(OWNER_ID_HEADER) Long userId, @PathVariable long itemId,
-                        @RequestBody ItemDto itemDto) {
+                        @Validated(Marker.OnUpdate.class) @RequestBody ItemDto itemDto) {
         log.info("Received a PATCH-request to the endpoint: '/items' to update item with ID = {}", itemId);
         return itemService.save(itemDto, itemId, userId);
     }

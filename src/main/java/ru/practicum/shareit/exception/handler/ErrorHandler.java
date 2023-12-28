@@ -64,13 +64,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Exception e) {
-        log.warn("500 {}", e.getMessage());
-        return ErrorResponse.builder().error(e.getMessage()).build();
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUnknownDataException(MethodArgumentNotValidException e) {
         log.warn("400 {}", e.getMessage());

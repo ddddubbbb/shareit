@@ -28,12 +28,13 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @AllArgsConstructor
@@ -78,12 +79,10 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> item = itemRepository.findAllByOwnerId(userId, page).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
-        List<ItemDto> list = new ArrayList<>();
-        item.stream().map(this::updateBookings).forEach(i -> {
-            CommentMapper.toDtoList(commentRepository.findAllByItemId(i.getId()));
-            list.add(i);
-        });
-        return list;
+        return item.stream()
+                .map(this::updateBookings)
+                .peek((i) -> CommentMapper.toDtoList(commentRepository.findAllByItemIdOrderByCreated(i.getId())))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -144,7 +143,7 @@ public class ItemServiceImpl implements ItemService {
         }
         return itemRepository.searchAvailableItems(text, page).stream()
                 .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @Override

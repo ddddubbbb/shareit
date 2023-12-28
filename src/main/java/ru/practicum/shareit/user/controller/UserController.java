@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -10,11 +11,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.Marker;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/users")
@@ -24,7 +26,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto create(@Valid @RequestBody UserDto userDto) {
+    public UserDto create(@Validated({Marker.OnCreate.class}) @RequestBody UserDto userDto) {
         log.info("Received a POST-request to the endpoint: '/users' to add user.");
         return userService.create(userDto);
     }
@@ -42,7 +44,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto save(@RequestBody UserDto userDto, @PathVariable long userId) {
+    public UserDto save(@Validated(Marker.OnUpdate.class) @RequestBody UserDto userDto, @PathVariable long userId) {
         log.info("Received a PATCH-request to the endpoint: '/users' to update user with ID = {}", userId);
         return userService.save(userDto, userId);
     }

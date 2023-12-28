@@ -5,24 +5,24 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.OutputBookingDto;
 import ru.practicum.shareit.booking.dto.InputBookingDto;
+import ru.practicum.shareit.booking.dto.OutputBookingDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.AlreadyExistsException;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.OperationAccessException;
 import ru.practicum.shareit.exception.TimeDataException;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
-import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -80,28 +80,36 @@ public class BookingServiceImpl implements BookingService {
         userService.findUserById(userId);
         Pageable page = PageRequest.of(from / size, size);
         LocalDateTime now = LocalDateTime.now();
-        switch (state) {
-            case "ALL":
+        switch (validState(state)) {
+            case ALL:
                 return BookingMapper.toBookingDto(bookingRepository.findByBookerIdOrderByStartDesc(userId, page));
-            case "CURRENT":
+            case CURRENT:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndEndIsAfterAndStartIsBeforeOrderByStartDesc(userId, now, now, page));
-            case "PAST":
+            case PAST:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndEndIsBeforeOrderByStartDesc(userId, now, page));
-            case "FUTURE":
+            case FUTURE:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndStartIsAfterOrderByStartDesc(userId, now, page));
-            case "WAITING":
+            case WAITING:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndStartIsAfterAndStatusIsOrderByStartDesc(userId, now,
                                 BookingStatus.WAITING, page));
-            case "REJECTED":
+            case REJECTED:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndStatusIsOrderByStartDesc(userId, BookingStatus.REJECTED, page));
 
         }
-        throw new BadRequestException(String.format("Unknown state: %s", state));
+        throw new IllegalArgumentException("Unknown state: " + state);
+    }
+
+    private BookingState validState(String bookingState) {
+        BookingState state = BookingState.from(bookingState);
+        if (state == null) {
+            throw new IllegalArgumentException("Unknown state: " + bookingState);
+        }
+        return state;
     }
 
     @Override
@@ -110,23 +118,23 @@ public class BookingServiceImpl implements BookingService {
         userService.findUserById(ownerId);
         Pageable page = PageRequest.of(from / size, size);
         LocalDateTime now = LocalDateTime.now();
-        switch (state) {
-            case "ALL":
+        switch (validState(state)) {
+            case ALL:
                 return BookingMapper.toBookingDto(bookingRepository.findByItemOwnerId(ownerId, page));
-            case "CURRENT":
+            case CURRENT:
                 return BookingMapper.toBookingDto(bookingRepository.findCurrentBookingsOwner(ownerId, now, page));
-            case "PAST":
+            case PAST:
                 return BookingMapper.toBookingDto(bookingRepository.findPastBookingsOwner(ownerId, now, page));
-            case "FUTURE":
+            case FUTURE:
                 return BookingMapper.toBookingDto(bookingRepository.findFutureBookingsOwner(ownerId, now, page));
-            case "WAITING":
+            case WAITING:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findWaitingBookingsOwner(ownerId, now, BookingStatus.WAITING, page));
-            case "REJECTED":
+            case REJECTED:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findRejectedBookingsOwner(ownerId, BookingStatus.REJECTED, page));
         }
-        throw new BadRequestException(String.format("Unknown state: %s", state));
+        throw new IllegalArgumentException("Unknown state: " + state);
     }
 
     @Override

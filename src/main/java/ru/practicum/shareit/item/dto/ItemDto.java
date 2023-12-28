@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.Marker;
 import ru.practicum.shareit.booking.dto.ShortItemBookingDto;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 
@@ -18,13 +19,13 @@ import java.util.List;
 public class ItemDto {
     private Long id;
 
-    @NotBlank
+    @NotBlank(groups = {Marker.OnCreate.class})
     private String name;
 
-    @NotBlank
+    @NotBlank(groups = {Marker.OnCreate.class})
     private String description;
 
-    @NotNull
+    @NotNull(groups = {Marker.OnCreate.class})
     private Boolean available;
     private ShortItemBookingDto lastBooking;
     private ShortItemBookingDto nextBooking;

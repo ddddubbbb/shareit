@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.Marker;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -15,10 +16,10 @@ import javax.validation.constraints.NotBlank;
 public class UserDto {
     private Long id;
 
-    @NotBlank
+    @NotBlank(groups = {Marker.OnCreate.class})
     private String name;
 
-    @Email
-    @NotBlank
+    @Email(groups = {Marker.OnCreate.class})
+    @NotBlank(groups = {Marker.OnCreate.class})
     private String email;
 }

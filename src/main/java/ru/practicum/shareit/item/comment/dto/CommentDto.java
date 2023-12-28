@@ -21,4 +21,5 @@ public class CommentDto {
     private ItemDto item;
     private String authorName;
     private LocalDateTime created;
+    private Long itemId;
 }

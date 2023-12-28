@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.exception.AlreadyExistsException;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.OperationAccessException;
@@ -135,15 +134,6 @@ class BookingServiceTest {
         Exception e = assertThrows(OperationAccessException.class,
                 () -> bookingService.findBookingById(1L, 100L));
         assertEquals(e.getMessage(), String.format("User with ID = %d is not the owner, no access to booking.", 100L));
-    }
-
-    @Test
-    void getAllBookingsWhenStateIsUnknownThenReturnedBadRequestException() {
-        Mockito.when(userService.findUserById(anyLong()))
-                .thenReturn(userDto);
-        Exception e = assertThrows(BadRequestException.class,
-                () -> bookingService.findAllBookingsByUser("tratata", 1L, 0, 10));
-        assertEquals(e.getMessage(), "Unknown state: tratata");
     }
 
     @Test
