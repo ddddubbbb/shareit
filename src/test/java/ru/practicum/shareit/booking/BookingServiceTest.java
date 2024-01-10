@@ -17,7 +17,6 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.exception.AlreadyExistsException;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.OperationAccessException;
@@ -211,7 +210,7 @@ class BookingServiceTest {
         Mockito.when(bookingRepository.findByBookerIdOrderByStartDesc(Mockito.anyLong(), any()))
                 .thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findByBookerIdAndEndIsAfterAndStartIsBeforeOrderByStartDesc(
-                Mockito.anyLong(),any(), any(), any())).thenReturn(List.of(testBooking));
+                Mockito.anyLong(), any(), any(), any())).thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(Mockito.anyLong(),
                 any(), any())).thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findByBookerIdAndStartIsAfterOrderByStartDesc(Mockito.anyLong(),
@@ -233,8 +232,10 @@ class BookingServiceTest {
     void getByItemOwnerIdAndStateTest(String state, int addToStart, int addToEnd) {
         LocalDateTime start = LocalDateTime.now().plusDays(addToStart);
         LocalDateTime end = LocalDateTime.now().plusDays(addToEnd);
-        User booker = new User(1L, "User", "user@email.com");;
-        User itemOwner = new User(2L, "User2", "user2@email.com");;
+        User booker = new User(1L, "User", "user@email.com");
+        ;
+        User itemOwner = new User(2L, "User2", "user2@email.com");
+        ;
         Item testItem = Item.builder()
                 .id(1L)
                 .name("Item")
@@ -256,11 +257,11 @@ class BookingServiceTest {
         Mockito.when(bookingRepository.findByItemOwnerId(Mockito.anyLong(), any()))
                 .thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findCurrentBookingsOwner(
-                Mockito.anyLong(),any(), any())).thenReturn(List.of(testBooking));
+                Mockito.anyLong(), any(), any())).thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(Mockito.anyLong(),
                 any(), any())).thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findPastBookingsOwner(
-                Mockito.anyLong(),any(), any())).thenReturn(List.of(testBooking));
+                Mockito.anyLong(), any(), any())).thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findFutureBookingsOwner(Mockito.anyLong(),
                 any(), any())).thenReturn(List.of(testBooking));
         List<OutputBookingDto> bookings = bookingService.findAllBookingsByOwner(state, itemOwner.getId(), 0, 10);
