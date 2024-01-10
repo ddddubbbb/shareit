@@ -60,6 +60,7 @@ class ItemRequestServiceTest {
 
         Mockito.when(requestRepository.save(any()))
                 .thenReturn(itemRequest);
+
         assertEquals(requestService.create(itemRequestDto, 1L), itemRequestDto);
     }
 
@@ -70,6 +71,7 @@ class ItemRequestServiceTest {
 
         Exception e = assertThrows(NotFoundException.class,
                 () -> requestService.create(itemRequestDto, 100L));
+
         assertEquals(e.getMessage(), String.format("User with ID = %d not found.", 1L));
     }
 
@@ -81,6 +83,7 @@ class ItemRequestServiceTest {
                 .thenReturn(Optional.ofNullable(itemRequest));
         Mockito.when(itemRepository.findAllByItemRequest(any()))
                 .thenReturn(new ArrayList<>());
+
         assertEquals(requestService.findById(1L, 1L), itemRequestDto);
     }
 
@@ -91,6 +94,7 @@ class ItemRequestServiceTest {
 
         Exception e = assertThrows(NotFoundException.class,
                 () -> requestService.findById(1L, 1L));
+
         assertEquals(e.getMessage(), String.format("Request with ID = %d not found.", 1L));
     }
 
@@ -102,6 +106,7 @@ class ItemRequestServiceTest {
                 .thenReturn(new ArrayList<>());
         Mockito.when(requestRepository.findByRequesterIdIsNot(anyLong(), any()))
                 .thenReturn(List.of(itemRequest));
+
         assertEquals(requestService.findRequests(1L, 1, 1), List.of(itemRequestDto));
     }
 
@@ -112,6 +117,7 @@ class ItemRequestServiceTest {
 
         Exception e = assertThrows(NotFoundException.class,
                 () -> requestService.findRequests(1L, 1, 1));
+
         assertEquals(e.getMessage(), String.format("User with ID = %d not found.", 1L));
     }
 
@@ -123,6 +129,7 @@ class ItemRequestServiceTest {
                 .thenReturn(List.of(itemRequest));
         Mockito.when(itemRepository.findAllByItemRequest(any()))
                 .thenReturn(new ArrayList<>());
+
         assertEquals(requestService.findUserRequests(1L), List.of(itemRequestDto));
     }
 
@@ -133,6 +140,7 @@ class ItemRequestServiceTest {
 
         Exception e = assertThrows(NotFoundException.class,
                 () -> requestService.findUserRequests(1L));
+
         assertEquals(e.getMessage(), String.format("User with ID = %d not found.", 1L));
     }
 }

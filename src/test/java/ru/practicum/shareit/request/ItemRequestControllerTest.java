@@ -72,6 +72,7 @@ class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(badItemRequestDto)))
                 .andExpect(status().isBadRequest());
+
         verify(requestService, never()).create(badItemRequestDto, 1L);
     }
 

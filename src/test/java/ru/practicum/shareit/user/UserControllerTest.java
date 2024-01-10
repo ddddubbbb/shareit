@@ -16,11 +16,14 @@ import ru.practicum.shareit.user.service.UserService;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -99,6 +102,29 @@ class UserControllerTest {
                 .getContentAsString();
 
         assertEquals(result, mapper.writeValueAsString(List.of(userDto)));
+    }
+
+    @Test
+    void updateUserTest() throws Exception {
+        UserDto updateUserDto = UserDto.builder()
+                .id(1L)
+                .name("updateUser")
+                .email("updateuser@email.com")
+                .build();
+
+        when(userService.save(any(), anyLong()))
+                .thenReturn(updateUserDto);
+
+        mvc.perform(patch("/users/{id}", 1L)
+                        .header("X-Sharer-User-Id", 1L)
+                        .content(mapper.writeValueAsString(updateUserDto))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(userService).save(updateUserDto, 1L);
     }
 
     @Test

@@ -56,6 +56,7 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
 
         Exception e = assertThrows(NotFoundException.class, () -> userService.findUserById(1L));
+
         assertEquals(e.getMessage(), String.format("User with ID = %d not found.", 1L));
     }
 
@@ -65,6 +66,7 @@ class UserServiceTest {
                 .thenReturn(List.of(user, user2));
 
         List<UserDto> users = userService.findAllUsers();
+
         assertEquals(users, List.of(userDto, userDto2));
     }
 
@@ -96,12 +98,14 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
 
         Exception e = assertThrows(NotFoundException.class, () -> userService.findUserById(3L));
+
         assertEquals(e.getMessage(), String.format("User with ID = %d not found.", 3L));
     }
 
     @Test
     void deleteUser() {
         userService.delete(1L);
+
         Mockito.verify(userRepository).deleteById(1L);
     }
 }

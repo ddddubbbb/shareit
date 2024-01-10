@@ -112,6 +112,7 @@ class ItemServiceTest {
 
         Mockito.when(itemRepository.save(any()))
                 .thenReturn(item);
+
         assertEquals(itemService.create(1L, itemDto), itemDto);
     }
 
@@ -122,6 +123,7 @@ class ItemServiceTest {
 
         Exception e = assertThrows(NotFoundException.class,
                 () -> itemService.create(100L, itemDto));
+
         assertEquals(e.getMessage(), String.format("User with ID = %d not found.", 100L));
     }
 
@@ -154,6 +156,7 @@ class ItemServiceTest {
 
         Exception e = assertThrows(NotFoundException.class, () -> itemService
                 .findItemById(100L, 1L));
+
         assertEquals(e.getMessage(), String.format("Item with ID = %d not found.", 100L));
     }
 
@@ -189,6 +192,7 @@ class ItemServiceTest {
                 .thenReturn(userDto);
         Mockito.when(itemRepository.save(any()))
                 .thenAnswer(i -> i.getArgument(0));
+
         assertEquals(itemService.save(itemDtoUpdate, 1L, 1L), itemDtoUpdate);
     }
 
@@ -198,6 +202,7 @@ class ItemServiceTest {
 
         Exception e = assertThrows(OperationAccessException.class,
                 () -> itemService.save(itemDto, 1L, 2L));
+
         assertEquals(e.getMessage(), String.format("User with ID = %d is not an owner, update is not available.", 2L));
     }
 
@@ -208,6 +213,7 @@ class ItemServiceTest {
 
         Exception e = assertThrows(NotFoundException.class,
                 () -> itemService.save(itemDto, 100L, 1L));
+
         assertEquals(e.getMessage(), String.format("Item with ID = %d not found.", 100L));
     }
 
@@ -222,6 +228,8 @@ class ItemServiceTest {
         assertEquals(itemService.search("item", 0, 10), List.of(itemDto));
     }
 
+
+
     @Test
     void addCommentTest() {
         Mockito.when(itemRepository.findById(anyLong()))
@@ -235,9 +243,17 @@ class ItemServiceTest {
         Mockito.when(commentRepository.save(any()))
                 .thenAnswer(i -> i.getArgument(0));
         CommentDto testComment = itemService.addComment(1L, 1L, commentDto);
+
         assertEquals(testComment.getId(), commentDto.getId());
         assertEquals(testComment.getItem(), commentDto.getItem());
         assertEquals(testComment.getText(), commentDto.getText());
         assertEquals(testComment.getAuthorName(), commentDto.getAuthorName());
+    }
+
+    @Test
+    void deleteItem() {
+        itemService.deleteById(1L);
+
+        Mockito.verify(itemRepository).deleteById(1L);
     }
 }

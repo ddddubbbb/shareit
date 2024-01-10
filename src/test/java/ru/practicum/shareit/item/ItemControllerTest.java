@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -228,6 +229,7 @@ class ItemControllerTest {
     void addCommentWhenAllParamsIsValidThenReturnedStatusIsOk() throws Exception {
         when(itemService.addComment(any(), anyLong(), any()))
                 .thenReturn(commentDto);
+
         mvc.perform(post("/items/1/comment")
                         .header("X-Sharer-User-Id", 1L)
                         .content(mapper.writeValueAsString(commentDto))
@@ -243,11 +245,19 @@ class ItemControllerTest {
         CommentDto badCommentDto = CommentDto.builder().id(1L).text("").authorName("AuthorName").build();
         when(itemService.addComment(any(), anyLong(), any()))
                 .thenReturn(commentDto);
+
         mvc.perform(post("/items/1/comment")
                         .header("X-Sharer-User-Id", 1L)
                         .content(mapper.writeValueAsString(badCommentDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
 
+    @Test
+    void deleteItemTest() throws Exception {
+        mvc.perform(delete("/items/{itemId}", 1L))
+                .andExpect(status().isOk());
+
+        verify(itemService).deleteById(1L);
     }
 }
