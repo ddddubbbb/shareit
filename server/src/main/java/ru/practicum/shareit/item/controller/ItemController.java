@@ -57,7 +57,7 @@ public class ItemController {
     @DeleteMapping("/{itemId}")
     public void delete(@PathVariable Long itemId) {
         log.info("Received a DELETE-request to the endpoint: '/items' to delete item with ID = {}", itemId);
-        itemService.deleteById(itemId);
+        itemService.delete(itemId);
     }
 
     @GetMapping("/search")

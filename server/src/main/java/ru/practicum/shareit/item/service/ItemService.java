@@ -16,7 +16,7 @@ public interface ItemService {
 
     ItemDto updateBookings(ItemDto itemDto);
 
-    void deleteById(Long itemId);
+    void delete(Long itemId);
 
     List<ItemDto> search(String text, Integer from, Integer size);
 

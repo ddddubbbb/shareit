@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -28,13 +29,12 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @AllArgsConstructor
@@ -60,14 +60,13 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto findItemById(Long itemId, Long userId) {
-        ItemDto result;
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Item with ID = %d not found.", itemId)));
-        result = ItemMapper.toItemDto(item);
+        ItemDto result = ItemMapper.toItemDto(item);
         if (Objects.equals(item.getOwnerId(), userId)) {
             updateBookings(result);
         }
-        List<Comment> comments = commentRepository.findAllByItemId(result.getId());
+        List<Comment> comments = commentRepository.findByItemId(result.getId());
         result.setComments(CommentMapper.toDtoList(comments));
         return result;
     }
@@ -75,14 +74,17 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public List<ItemDto> findUserItems(Long userId, Integer from, Integer size) {
-        Pageable page = PageRequest.of(from / size, size);
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable page = PageRequest.of(from / size, size, sort);
         List<ItemDto> item = itemRepository.findAllByOwnerId(userId, page).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
-        return item.stream()
-                .map(this::updateBookings)
-                .peek((i) -> CommentMapper.toDtoList(commentRepository.findAllByItemIdOrderByCreated(i.getId())))
-                .collect(Collectors.toList());
+        List<ItemDto> list = new ArrayList<>();
+        item.stream().map(this::updateBookings).forEach(i -> {
+            CommentMapper.toDtoList(commentRepository.findAllByItemIdOrderByCreated(i.getId()));
+            list.add(i);
+        });
+        return list;
     }
 
     @Override
@@ -130,7 +132,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public void deleteById(Long itemId) {
+    public void delete(Long itemId) {
         itemRepository.deleteById(itemId);
     }
 
@@ -143,7 +145,7 @@ public class ItemServiceImpl implements ItemService {
         }
         return itemRepository.searchAvailableItems(text, page).stream()
                 .map(ItemMapper::toItemDto)
-                .collect(toList());
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -163,14 +165,14 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> bookings = bookingRepository
                 .findByItemIdAndBookerIdAndStatusIsAndEndIsBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
         log.info(bookings.toString());
-        if (!bookings.isEmpty() && bookings.get(0).getStart().isBefore(LocalDateTime.now())) {
+        if (!(!bookings.isEmpty() && bookings.get(0).getStart().isBefore(LocalDateTime.now()))) {
+            throw new NotAvailableException(String.format("Booking for user with ID = %d and item with ID = %d not found.", userId, itemId));
+        } else {
             Comment comment = CommentMapper.toComment(commentDto);
             comment.setItem(item);
             comment.setAuthor(user);
             comment.setCreated(LocalDateTime.now());
             return CommentMapper.toDto(commentRepository.save(comment));
-        } else {
-            throw new NotAvailableException(String.format("Booking for user with ID = %d and item with ID = %d not found.", userId, itemId));
         }
     }
 }
