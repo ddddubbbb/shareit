@@ -29,7 +29,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -74,13 +73,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public List<ItemDto> findUserItems(Long userId, Integer from, Integer size) {
-        Pageable page = PageRequest.of(from / size, size);
-        List<ItemDto> item = itemRepository.findAllByOwnerId(userId, page).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
-        return item.stream()
-                .map(this::updateBookings)
-                .peek((i) -> CommentMapper.toDtoList(commentRepository.findAllByItemIdOrderByCreated(i.getId())))
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable page = PageRequest.of(from / size, size, sort);
+        return itemRepository.findAllByOwnerId(userId, page)
+                .stream()
+                .map(item -> findItemById(item.getId(), userId))
                 .collect(Collectors.toList());
     }
 
