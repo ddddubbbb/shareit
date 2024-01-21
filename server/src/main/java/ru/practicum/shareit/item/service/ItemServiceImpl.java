@@ -74,17 +74,14 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public List<ItemDto> findUserItems(Long userId, Integer from, Integer size) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Pageable page = PageRequest.of(from / size, size, sort);
+        Pageable page = PageRequest.of(from / size, size);
         List<ItemDto> item = itemRepository.findAllByOwnerId(userId, page).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
-        List<ItemDto> list = new ArrayList<>();
-        item.stream().map(this::updateBookings).forEach(i -> {
-            CommentMapper.toDtoList(commentRepository.findAllByItemIdOrderByCreated(i.getId()));
-            list.add(i);
-        });
-        return list;
+        return item.stream()
+                .map(this::updateBookings)
+                .peek((i) -> CommentMapper.toDtoList(commentRepository.findAllByItemIdOrderByCreated(i.getId())))
+                .collect(Collectors.toList());
     }
 
     @Override
